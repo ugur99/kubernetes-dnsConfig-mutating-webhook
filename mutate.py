@@ -28,8 +28,8 @@ def mutatating_webhook():
   uid = request_json['request']['uid']
   namespace = request_json["request"]["namespace"]
   spec = request_json["request"].get("object")
-  pod_generate_name = spec["metadata"]["name"]
-  pod_owner_object_name = spec["metadata"]["ownerReferences"][0]["generateName"]
+  pod_generate_name = spec["metadata"]["generateName"]
+  pod_owner_object_name = spec["metadata"]["ownerReferences"][0]["name"]
   pod_owner_object_kind = spec["metadata"]["ownerReferences"][0]["kind"]
 
   if namespace in list:
