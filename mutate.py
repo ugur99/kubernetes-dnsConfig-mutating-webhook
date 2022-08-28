@@ -76,8 +76,8 @@ def mutatation_response(allowed, uid, message, patch):
                         {"allowed": allowed,
                          "uid": uid,
                          "status": {"message": message},
-                         "patch": base64.b64encode(str(patch).encode()).decode(),
-                         "patchtype": "JSONPatch",
+                         "patchType": "JSONPatch",
+                         "patch": base64.b64encode(str(patch).encode()).decode()
                          }
                     })
 
