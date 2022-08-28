@@ -1,0 +1,7 @@
+apiVersion: v1
+data:
+  properties.yaml: |
+    sisyphus
+kind: ConfigMap
+metadata:
+  name: dns-mutation-cm
