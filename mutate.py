@@ -27,13 +27,21 @@ logger = get_logger()
 @webhook.route('/mutate', methods=['POST'])
 def mutatating_webhook():
     request_info = request.get_json()
-    logger.info("Requst is: " , request_info)
+    #logger.info("Requst is: " , request_info)
     spec = request_info["request"].get("object")
     uid = request_info["request"].get("uid")
-    namespace = request_info["request"]["namespace"]
+    #namespace = request_info["request"]["namespace"]
 
 
-    if spec["spec"]["dnsPolicy"] == "ClusterFirst" and namespace == "default":
+    try:
+      spec["spec"]["dnsPolicy"]
+    except KeyError:
+      logger.warning("dnsPolicy is not defined.")
+      patch = "[{\"op\": \"add\", \"path\": \"/spec/dnsConfig\", \"value\": {\"nameservers\": [\"169.254.25.10\"], \"options\": [{\"name\": \"timeout\", \"value\": \"1\"}, {\"name\": \"ndots\", \"value\": \"1\"}, {\"name\": \"attempts\", \"value\": \"1\"}], \"searches\": [\"svc.cluster.local\"]}}, {\"op\": \"replace\", \"path\": \"/spec/dnsPolicy\", \"value\": \"None\"}]"
+    else:
+      patch = "[{\"op\": \"add\", \"path\": \"/spec/dnsConfig\", \"value\": {\"nameservers\": [\"169.254.25.10\"], \"options\": [{\"name\": \"timeout\", \"value\": \"1\"}, {\"name\": \"ndots\", \"value\": \"1\"}, {\"name\": \"attempts\", \"value\": \"1\"}], \"searches\": [\"svc.cluster.local\"]}}, {\"op\": \"replace\", \"path\": \"/spec/dnsPolicy\", \"value\": \"None\"}]"
+
+    #if spec["spec"]["dnsPolicy"] == "ClusterFirst" and namespace == "default":
         #modified_spec = copy.deepcopy(spec)
         #try:
         #    modified_spec["spec"]["dnsPolicy"] = "None"
@@ -50,12 +58,12 @@ def mutatating_webhook():
         #    pass
 #
         #patch = jsonpatch.JsonPatch.from_diff(spec, modified_spec)
-        patch = "[{\"op\": \"add\", \"path\": \"/spec/dnsConfig\", \"value\": {\"nameservers\": [\"169.254.25.10\"], \"options\": [{\"name\": \"timeout\", \"value\": \"1\"}, {\"name\": \"ndots\", \"value\": \"1\"}, {\"name\": \"attempts\", \"value\": \"1\"}], \"searches\": [\"svc.cluster.local\"]}}, {\"op\": \"replace\", \"path\": \"/spec/dnsPolicy\", \"value\": \"None\"}]"
+        #patch = "[{\"op\": \"add\", \"path\": \"/spec/dnsConfig\", \"value\": {\"nameservers\": [\"169.254.25.10\"], \"options\": [{\"name\": \"timeout\", \"value\": \"1\"}, {\"name\": \"ndots\", \"value\": \"1\"}, {\"name\": \"attempts\", \"value\": \"1\"}], \"searches\": [\"svc.cluster.local\"]}}, {\"op\": \"replace\", \"path\": \"/spec/dnsPolicy\", \"value\": \"None\"}]"
         
-    elif namespace != "default":
-        print("Namespace is: " + namespace)
-    else:
-        print("Uups we have a problem #1")
+    #elif namespace != "default":
+        #print("Namespace is: " + namespace)
+    #else:
+        #print("Uups we have a problem #1")
 
     return mutatation_response(True, uid, f"Clsuter-wide DNS policy was applied!",patch)
 
