@@ -1,0 +1,35 @@
+name: Docker Build
+
+on:
+  push:
+    branches: [ "main" ]
+
+
+jobs:
+
+  build:
+    name: Build docker image and push this image to docker.io container registry
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check Out Source Code
+      uses: actions/checkout@v2
+    - name: Set variables
+      run: |
+        VER=$(cat resources/env | awk {'print$2'})
+        echo $VER
+        echo "VERSION=$VER" >> $GITHUB_ENV
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    - name: Login to DockerHub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    - name: Build for dnsmutationwebhook
+      run: |
+        docker build -t ugurozturk99/dnsmutationwebhook:v${{ env.VERSION }} -f Dockerfile .
+        docker tag  ugurozturk99/dnsmutationwebhook:v${{ env.VERSION }} ugurozturk99/dnsmutationwebhook:latest
+    - name: Push for dnsmutationwebhook
+      run: |
+        docker push ugurozturk99/dnsmutationwebhook:v${{ env.VERSION }} 
+        docker push ugurozturk99/dnsmutationwebhook:latest

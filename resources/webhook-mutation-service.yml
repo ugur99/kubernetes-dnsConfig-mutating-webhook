@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: dns-mutation
+spec:
+  selector:
+    app: dns-mutation
+  ports:
+  - port: 443

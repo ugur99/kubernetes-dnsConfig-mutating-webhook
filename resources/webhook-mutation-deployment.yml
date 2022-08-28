@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dns-mutation-webhook
+  labels:
+    app: dns-mutation
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dns-mutation
+  template:
+    metadata:
+      labels:
+        app: dns-mutation
+    spec:
+      containers:
+      - name: webhook
+        image: ugurozturk99/dnsmutationwebhook:${CI_PIPELINE_ID}
+        ports:
+        - containerPort: 443
+        #env:
+        #- name: ndots
+        #  value: "2"
+        #- name: timeout
+        #  value: "2"
+        #- name: attempts
+        #  value: "1"
+        volumeMounts:
+        #- mountPath: "/app/properties.yaml"
+        #  name: config
+        #  subPath: "properties.yaml"
+        - name: certs-volume
+          readOnly: true
+          mountPath: "/certs"
+        imagePullPolicy: Always
+      volumes:
+      #- name: config
+      #  configMap:
+      #    name: webhook-cm
+      #    items:
+      #    - key: "properties.yaml"
+      #      path: "properties.yaml"
+      - name: certs-volume
+        secret:
+          secretName: dns-admission-tls

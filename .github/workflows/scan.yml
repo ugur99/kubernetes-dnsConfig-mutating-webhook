@@ -1,0 +1,30 @@
+name: "Vulnerability Scanning"
+
+on:
+  workflow_run:
+    workflows: ["Docker Build"]
+    types: [completed]
+
+
+jobs:
+  Trivy-Scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Set variables
+        run: |
+          VER=$(cat resources/env | awk {'print$2'})
+          echo $VER
+          echo "VERSION=$VER" >> $GITHUB_ENV
+      - name: Run Trivy vulnerability scanner for dnsmutationwebhook
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'ugurozturk99/dnsmutationwebhook:v${{ env.VERSION }}'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
