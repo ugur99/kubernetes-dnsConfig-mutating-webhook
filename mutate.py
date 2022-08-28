@@ -21,7 +21,7 @@ def mutatating_webhook():
   try:
     request_json = request.get_json()
     req = json.dumps(request_json)
-    logger.debug("Request is: " + req )
+    #logger.debug("Request is: " + req )
   except Exception as e:
     print(str(e))
 
@@ -29,7 +29,7 @@ def mutatating_webhook():
   namespace = request_json["request"]["namespace"]
   spec = request_json["request"].get("object")
   pod_generate_name = spec["metadata"]["name"]
-  pod_owner_object_name = spec["metadata"]["ownerReferences"][0]["name"]
+  pod_owner_object_name = spec["metadata"]["ownerReferences"][0]["generateName"]
   pod_owner_object_kind = spec["metadata"]["ownerReferences"][0]["kind"]
 
   if namespace in list:
