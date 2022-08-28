@@ -1,6 +1,6 @@
 FROM ubuntu:20.04
 WORKDIR /app
-COPY requirements.txt /app/requirements.txt
+COPY resources/requirements.txt /app/requirements.txt
 RUN apt-get update -y && \
     apt-get install -y python3-pip && \
     apt-get install -y python-dev && \

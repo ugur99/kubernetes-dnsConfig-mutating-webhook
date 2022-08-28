@@ -26,41 +26,44 @@ def mutatating_webhook():
     }
   }
 
-  patch = """
-     [
-       {
-         "op": "add",
-         "path": "/spec/dnsConfig",
-         "value": {
-           "nameservers": [
-             "169.254.25.10"
-           ],
-           "options": [
-             {
-               "name": "timeout",
-               "value": "1"
-             },
-             {
-               "name": "ndots",
-               "value": "1"
-             },
-             {
-               "name": "attempts",
-               "value": "1"
-             }
-           ],
-           "searches": [
-             "svc.cluster.local"
-           ]
-         }
-       },
-       {
-         "op": "replace",
-         "path": "/spec/dnsPolicy",
-         "value": "None"
-       }
-     ]
-     """
+  patch = "[{\"op\": \"add\", \"path\": \"/spec/dnsConfig\", \"value\": {\"nameservers\": [\"169.254.25.10\"], \"options\": [{\"name\": \"timeout\", \"value\": \"1\"}, {\"name\": \"ndots\", \"value\": \"1\"}, {\"name\": \"attempts\", \"value\": \"1\"}], \"searches\": [\"svc.cluster.local\"]}}, {\"op\": \"replace\", \"path\": \"/spec/dnsPolicy\", \"value\": \"None\"}]"
+
+
+  #patch = """
+  #   [
+  #     {
+  #       "op": "add",
+  #       "path": "/spec/dnsConfig",
+  #       "value": {
+  #         "nameservers": [
+  #           "169.254.25.10"
+  #         ],
+  #         "options": [
+  #           {
+  #             "name": "timeout",
+  #             "value": "1"
+  #           },
+  #           {
+  #             "name": "ndots",
+  #             "value": "1"
+  #           },
+  #           {
+  #             "name": "attempts",
+  #             "value": "1"
+  #           }
+  #         ],
+  #         "searches": [
+  #           "svc.cluster.local"
+  #         ]
+  #       }
+  #     },
+  #     {
+  #       "op": "replace",
+  #       "path": "/spec/dnsPolicy",
+  #       "value": "None"
+  #     }
+  #   ]
+  #   """
   patch_bytes = patch.encode('ascii')
   patch_base64_bytes = base64.b64encode(patch_bytes)
   patch_base64 = patch_base64_bytes.decode('ascii')
