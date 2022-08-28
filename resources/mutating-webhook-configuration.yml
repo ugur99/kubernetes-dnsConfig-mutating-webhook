@@ -10,7 +10,7 @@ webhooks:
     rules:
       - apiGroups: ["apps", ""]
         resources:
-          - "pod"
+          - "pods"
         apiVersions:
           - "*"
         operations:
