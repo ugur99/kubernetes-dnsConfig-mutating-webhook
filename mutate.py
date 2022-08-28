@@ -25,7 +25,7 @@ def mutatating_webhook():
 
   uid = request_json['request']['uid']
   namespace = request_json["request"]["namespace"]
-  pod_name = request_json["request"]["object"]["metadata"]["name"]
+  pod_name = request_json["request"]["name"]
 
   if namespace in list:
     logger.info("Namespace " + namespace + " is not retricted. " + pod_name + " is deployed...")
