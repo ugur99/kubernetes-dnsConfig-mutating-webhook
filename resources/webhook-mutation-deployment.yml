@@ -22,7 +22,9 @@ spec:
         resources:
           requests:
             cpu: "1m"
-        #env:
+        env:
+        - name: LOG_LEVEL
+          value: "DEBUG"
         #- name: ndots
         #  value: "2"
         #- name: timeout

@@ -27,7 +27,7 @@ logger = get_logger()
 @webhook.route('/mutate', methods=['POST'])
 def mutatating_webhook():
     request_info = request.get_json()
-    logger.debug("Requst is: " + request_info)
+    logger.info("Requst is: " , request_info)
     spec = request_info["request"].get("object")
     uid = request_info["request"].get("uid")
     namespace = request_info["request"]["namespace"]
