@@ -19,6 +19,9 @@ spec:
         image: ugurozturk99/dnsmutationwebhook:${CI_PIPELINE_ID}
         ports:
         - containerPort: 443
+        resources:
+          requests:
+            cpu: "1m"
         #env:
         #- name: ndots
         #  value: "2"

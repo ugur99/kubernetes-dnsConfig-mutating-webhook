@@ -5,6 +5,7 @@ metadata:
 webhooks:
   - name: dns-mutation.default.svc
     failurePolicy: Fail
+    sideEffects: None
     admissionReviewVersions: ["v1","v1beta1"]
     rules:
       - apiGroups: ["apps", ""]
