@@ -31,15 +31,21 @@ def mutatating_webhook():
     spec = request_info["request"].get("object")
     uid = request_info["request"].get("uid")
     #namespace = request_info["request"]["namespace"]
-
+    modified_spec = copy.deepcopy(spec)
 
     try:
-      spec["spec"]["dnsPolicy"]
+      #spec["spec"]["dnsPolicy"]
+      modified_spec["spec"]["dnsPolicy"] = "None"
     except KeyError:
-      logger.warning("dnsPolicy is not defined.")
-      patch = "[{\"op\": \"add\", \"path\": \"/spec/dnsConfig\", \"value\": {\"nameservers\": [\"169.254.25.10\"], \"options\": [{\"name\": \"timeout\", \"value\": \"1\"}, {\"name\": \"ndots\", \"value\": \"1\"}, {\"name\": \"attempts\", \"value\": \"1\"}], \"searches\": [\"svc.cluster.local\"]}}, {\"op\": \"replace\", \"path\": \"/spec/dnsPolicy\", \"value\": \"None\"}]"
-    else:
-      patch = "[{\"op\": \"add\", \"path\": \"/spec/dnsConfig\", \"value\": {\"nameservers\": [\"169.254.25.10\"], \"options\": [{\"name\": \"timeout\", \"value\": \"1\"}, {\"name\": \"ndots\", \"value\": \"1\"}, {\"name\": \"attempts\", \"value\": \"1\"}], \"searches\": [\"svc.cluster.local\"]}}, {\"op\": \"replace\", \"path\": \"/spec/dnsPolicy\", \"value\": \"None\"}]"
+      pass
+
+    patch = jsonpatch.JsonPatch.from_diff(spec, modified_spec)
+      #logger.warning("dnsPolicy is not defined.")
+      #modified_spec["spec"]["dnsPolicy"] = "None"
+      #patch = "[{\"op\": \"add\", \"path\": \"/spec/dnsConfig\", \"value\": {\"nameservers\": [\"169.254.25.10\"], \"options\": [{\"name\": \"timeout\", \"value\": \"1\"}, {\"name\": \"ndots\", \"value\": \"1\"}, {\"name\": \"attempts\", \"value\": \"1\"}], \"searches\": [\"svc.cluster.local\"]}}, {\"op\": \"replace\", \"path\": \"/spec/dnsPolicy\", \"value\": \"None\"}]"
+    #else:
+      #modified_spec["spec"]["dnsPolicy"] = "None"
+      #patch = "[{\"op\": \"add\", \"path\": \"/spec/dnsConfig\", \"value\": {\"nameservers\": [\"169.254.25.10\"], \"options\": [{\"name\": \"timeout\", \"value\": \"1\"}, {\"name\": \"ndots\", \"value\": \"1\"}, {\"name\": \"attempts\", \"value\": \"1\"}], \"searches\": [\"svc.cluster.local\"]}}, {\"op\": \"replace\", \"path\": \"/spec/dnsPolicy\", \"value\": \"None\"}]"
 
     #if spec["spec"]["dnsPolicy"] == "ClusterFirst" and namespace == "default":
         #modified_spec = copy.deepcopy(spec)
@@ -75,9 +81,9 @@ def mutatation_response(allowed, uid, message, patch):
                     "response":
                         {"allowed": allowed,
                          "uid": uid,
-                         "status": {"message": message},
-                         "patchType": "JSONPatch",
-                         "patch": base64.b64encode(str(patch).encode()).decode()
+                         #"status": {"message": message},
+                         "patch": base64.b64encode(str(patch).encode()).decode(),
+                         "patchType": "JSONPatch"
                          }
                     })
 
