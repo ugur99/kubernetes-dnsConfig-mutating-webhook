@@ -20,6 +20,10 @@ def mutatating_webhook():
 
   try:
     request_json = request.get_json()
+
+    req = json.dumps(request_json)
+    print("Request is: " + req )
+
   except Exception as e:
     print(str(e))
 
@@ -41,7 +45,7 @@ def mutatating_webhook():
       patch = "[{\"op\": \"add\", \"path\": \"/spec/dnsConfig\", \"value\": {\"nameservers\": [\"169.254.25.10\"], \"options\": [{\"name\": \"timeout\", \"value\": \"1\"}, {\"name\": \"ndots\", \"value\": \"2\"}, {\"name\": \"attempts\", \"value\": \"1\"}], \"searches\": [\"svc.cluster.local\",\"ns.svc.cluster.local\"]}}, {\"op\": \"replace\", \"path\": \"/spec/dnsPolicy\", \"value\": \"None\"}]"
       return mutatation_response(True, uid, patch)
     else:
-      logger.info("DNS policy is " + spec["spec"]["dnsPolicy"])
+      logger.info("DNS policy is " + spec["spec"]["dnsPolicy"] + " and skipping mutation webhook.")
       return default_response(uid)
 
 
