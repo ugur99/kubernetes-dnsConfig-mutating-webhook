@@ -12,8 +12,6 @@ logger = get_logger()
 #webhook.config['ndots'] = environ.get('ndots')
 #webhook.config['timeout'] = environ.get('timeout')
 #webhook.config['attempts'] = environ.get('attempts')
-
-
 #if "ndots" not in environ:
 #    logger.error("Required environment variable 'ndots' isn't set. Exiting...")
 #    exit(1)
@@ -28,18 +26,19 @@ logger = get_logger()
 def mutatating_webhook():
     request_info = request.get_json()
     #logger.info("Requst is: " , request_info)
-    spec = request_info["request"].get("object")
+    #spec = request_info["request"].get("object")
     uid = request_info["request"].get("uid")
     #namespace = request_info["request"]["namespace"]
-    modified_spec = copy.deepcopy(spec)
+    #modified_spec = copy.deepcopy(spec)
+    patch = "[{\"op\": \"add\", \"path\": \"/spec/dnsConfig\", \"value\": {\"nameservers\": [\"169.254.25.10\"], \"options\": [{\"name\": \"timeout\", \"value\": \"1\"}, {\"name\": \"ndots\", \"value\": \"1\"}, {\"name\": \"attempts\", \"value\": \"1\"}], \"searches\": [\"svc.cluster.local\"]}}, {\"op\": \"replace\", \"path\": \"/spec/dnsPolicy\", \"value\": \"None\"}]"
 
-    try:
+    #try:
       #spec["spec"]["dnsPolicy"]
-      modified_spec["spec"]["dnsPolicy"] = "None"
-    except KeyError:
-      pass
+    #  modified_spec["spec"]["dnsPolicy"] = "None"
+    #except KeyError:
+    #  pass
 
-    patch = jsonpatch.JsonPatch.from_diff(spec, modified_spec)
+    #patch = jsonpatch.JsonPatch.from_diff(spec, modified_spec)
       #logger.warning("dnsPolicy is not defined.")
       #modified_spec["spec"]["dnsPolicy"] = "None"
       #patch = "[{\"op\": \"add\", \"path\": \"/spec/dnsConfig\", \"value\": {\"nameservers\": [\"169.254.25.10\"], \"options\": [{\"name\": \"timeout\", \"value\": \"1\"}, {\"name\": \"ndots\", \"value\": \"1\"}, {\"name\": \"attempts\", \"value\": \"1\"}], \"searches\": [\"svc.cluster.local\"]}}, {\"op\": \"replace\", \"path\": \"/spec/dnsPolicy\", \"value\": \"None\"}]"
@@ -71,17 +70,16 @@ def mutatating_webhook():
     #else:
         #print("Uups we have a problem #1")
 
-    return mutatation_response(True, uid, f"Clsuter-wide DNS policy was applied!",patch)
+    return mutatation_response(True, uid, patch)
 
 
 
-def mutatation_response(allowed, uid, message, patch):
+def mutatation_response(allowed, uid, patch):
     return jsonify({"apiVersion": "admission.k8s.io/v1",
                     "kind": "AdmissionReview",
                     "response":
                         {"allowed": allowed,
                          "uid": uid,
-                         #"status": {"message": message},
                          "patch": base64.b64encode(str(patch).encode()).decode(),
                          "patchType": "JSONPatch"
                          }

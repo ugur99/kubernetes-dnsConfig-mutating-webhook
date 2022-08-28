@@ -20,5 +20,7 @@ spec:
       containers:
       - image: nginx:latest
         name: nginx
-        resources: {}
+        resources:
+          requests:
+            cpu: "1m"
 status: {}
