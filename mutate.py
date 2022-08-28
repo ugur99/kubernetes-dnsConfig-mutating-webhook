@@ -26,17 +26,23 @@ def mutatating_webhook():
   uid = request_json['request']['uid']
   namespace = request_json["request"]["namespace"]
   spec = request_json["request"].get("object")
-  pod_name = spec["metadata"]["name"]
+  #pod_name = spec["metadata"]["name"]
 
   if namespace in list:
-    logger.info("Namespace " + namespace + " is not retricted. " + pod_name + " is deployed...")
-    logger.debug("Namespace: " + namespace + " Pod: " + pod_name + " Request UID is: " + uid)
+    logger.info("Namespace " + namespace + " is not retricted. ")
+    #logger.info("Namespace " + namespace + " is not retricted. " + pod_name + " is deployed...")
+    #logger.debug("Namespace: " + namespace + " Pod: " + pod_name + " Request UID is: " + uid)
     return default_response(uid)
   else:
-    logger.info("DNS Mutation Webhhok is applying to " + pod_name + " ...")
-    logger.debug("Namespace: " + namespace + " Pod: " + pod_name + " Request UID is: " + uid)
-    patch = "[{\"op\": \"add\", \"path\": \"/spec/dnsConfig\", \"value\": {\"nameservers\": [\"169.254.25.10\"], \"options\": [{\"name\": \"timeout\", \"value\": \"1\"}, {\"name\": \"ndots\", \"value\": \"2\"}, {\"name\": \"attempts\", \"value\": \"1\"}], \"searches\": [\"svc.cluster.local\",\"ns.svc.cluster.local\"]}}, {\"op\": \"replace\", \"path\": \"/spec/dnsPolicy\", \"value\": \"None\"}]"
-    return mutatation_response(True, uid, patch)
+    if (spec["spec"]["dnsPolicy"] is None) or (spec["spec"]["dnsPolicy"] == "ClusterFirst"):
+      logger.info("DNS Mutation Webhhok is applying ...")
+      #logger.info("DNS Mutation Webhhok is applying to " + pod_name + " ...")
+      # #logger.debug("Namespace: " + namespace + " Pod: " + pod_name + " Request UID is: " + uid)
+      # patch = "[{\"op\": \"add\", \"path\": \"/spec/dnsConfig\", \"value\": {\"nameservers\": [\"169.254.25.10\"], \"options\": [{\"name\": \"timeout\", \"value\": \"1\"}, {\"name\": \"ndots\", \"value\": \"2\"}, {\"name\": \"attempts\", \"value\": \"1\"}], \"searches\": [\"svc.cluster.local\",\"ns.svc.cluster.local\"]}}, {\"op\": \"replace\", \"path\": \"/spec/dnsPolicy\", \"value\": \"None\"}]"
+      return mutatation_response(True, uid, patch)
+    else:
+      logger.info("DNS policy is " + spec["spec"]["dnsPolicy"])
+      return default_response(uid)
 
 
 
