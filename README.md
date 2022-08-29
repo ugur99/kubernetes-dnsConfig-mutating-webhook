@@ -1,4 +1,6 @@
 # kubernetes-dnsConfig-mutating-webhook
+[![Docker Build](https://github.com/ugur99/kubernetes-dnsConfig-mutating-webhook/actions/workflows/docker-image.yml/badge.svg?branch=main)](https://github.com/ugur99/kubernetes-dnsConfig-mutating-webhook/actions/workflows/docker-image.yml) [![Vulnerability Scanning](https://github.com/ugur99/kubernetes-dnsConfig-mutating-webhook/actions/workflows/scan.yml/badge.svg?branch=main)](https://github.com/ugur99/kubernetes-dnsConfig-mutating-webhook/actions/workflows/scan.yml)
+
 This is a Kubernetes mutating webhook to manipulate `dnsConfig` and `dnsPolicy` dynamically.
 
 If dnsPolicy is not specified or is set as ClusterFirst, the pod creation request is intercepted and mutated as the following:
