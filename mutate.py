@@ -39,7 +39,7 @@ def mutatating_webhook():
   else:
     if (spec["spec"]["dnsPolicy"] is None) or (spec["spec"]["dnsPolicy"] == "ClusterFirst"):
       logger.debug("Namespace " + namespace + " is retricted. | " + " Owner Object is: " + pod_owner_object_name + " | Owner Object Kind: " + pod_owner_object_kind  + " | Pod Generate Name is: " + pod_generate_name + " | " + " Request UID is: " + uid + " | MUTATED AND DEPLOYED " )
-      logger.info("Namespace: " + namespace +  "Owner Object is: " + pod_owner_object_name + " | MUTATED AND DEPLOYED ")
+      logger.info("Namespace: " + namespace +  " | Owner Object is: " + pod_owner_object_name + " | MUTATED AND DEPLOYED ")
       patch = "[{\"op\": \"add\", \"path\": \"/spec/dnsConfig\", \"value\": {\"nameservers\": [\"169.254.25.10\"], \"options\": [{\"name\": \"timeout\", \"value\": \"1\"}, {\"name\": \"ndots\", \"value\": \"2\"}, {\"name\": \"attempts\", \"value\": \"1\"}], \"searches\": [\"svc.cluster.local\",\"ns.svc.cluster.local\"]}}, {\"op\": \"replace\", \"path\": \"/spec/dnsPolicy\", \"value\": \"None\"}]"
       return mutatation_response(True, uid, patch)
     else:
