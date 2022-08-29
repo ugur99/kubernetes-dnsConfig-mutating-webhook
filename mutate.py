@@ -98,6 +98,7 @@ def mutatating_webhook():
   try:
     pod_generate_name = spec["metadata"]["generateName"]
   except KeyError:
+    logger.debug("Request is: " + req )
     logger.info("Request UID: " + uid + " does not have pod generate name..")
     pod_generate_name = ""
   try:
@@ -114,7 +115,7 @@ def mutatating_webhook():
 
   if namespace in list:
     logger.debug("Namespace " + namespace + " is not restricted. | " + " Owner Object: " + pod_owner_object_name + " | Owner Object Kind: " + pod_owner_object_kind  + " | Pod Generate Name: " + pod_generate_name + " | " + " Request UID: " + uid + " | NOT MUTATED AND DEPLOYED " )
-    logger.info("Namespace: " + namespace +  "Owner Object: " + pod_owner_object_name + " | NOT MUTATED AND DEPLOYED ")
+    logger.info("Namespace: " + namespace +  " | Owner Object: " + pod_owner_object_name + " | NOT MUTATED AND DEPLOYED ")
     return default_response(uid)
   else:
     if (spec["spec"]["dnsPolicy"] is None) or (spec["spec"]["dnsPolicy"] == "ClusterFirst"):
