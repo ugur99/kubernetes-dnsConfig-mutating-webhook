@@ -33,18 +33,18 @@ def mutatating_webhook():
   pod_owner_object_kind = spec["metadata"]["ownerReferences"][0]["kind"]
 
   if namespace in list:
-    logger.debug("Namespace " + namespace + " is not retricted. | " + " Owner Object is: " + pod_owner_object_name + " | Owner Object Kind: " + pod_owner_object_kind  + " | Pod Generate Name is: " + pod_generate_name + " | " + " Request UID is: " + uid + " | NOT MUTATED AND DEPLOYED " )
+    logger.debug("Namespace " + namespace + " is not restricted. | " + " Owner Object is: " + pod_owner_object_name + " | Owner Object Kind: " + pod_owner_object_kind  + " | Pod Generate Name is: " + pod_generate_name + " | " + " Request UID is: " + uid + " | NOT MUTATED AND DEPLOYED " )
     logger.info("Namespace: " + namespace +  "Owner Object is: " + pod_owner_object_name + " | NOT MUTATED AND DEPLOYED ")
     return default_response(uid)
   else:
     if (spec["spec"]["dnsPolicy"] is None) or (spec["spec"]["dnsPolicy"] == "ClusterFirst"):
-      logger.debug("Namespace " + namespace + " is retricted. | " + " Owner Object is: " + pod_owner_object_name + " | Owner Object Kind: " + pod_owner_object_kind  + " | Pod Generate Name is: " + pod_generate_name + " | " + " Request UID is: " + uid + " | MUTATED AND DEPLOYED " )
+      logger.debug("Namespace " + namespace + " is restricted. | " + " Owner Object is: " + pod_owner_object_name + " | Owner Object Kind: " + pod_owner_object_kind  + " | Pod Generate Name is: " + pod_generate_name + " | " + " Request UID is: " + uid + " | MUTATED AND DEPLOYED " )
       logger.info("Namespace: " + namespace +  " | Owner Object is: " + pod_owner_object_name + " | MUTATED AND DEPLOYED ")
       patch = "[{\"op\": \"add\", \"path\": \"/spec/dnsConfig\", \"value\": {\"nameservers\": [\"169.254.25.10\"], \"options\": [{\"name\": \"timeout\", \"value\": \"1\"}, {\"name\": \"ndots\", \"value\": \"2\"}, {\"name\": \"attempts\", \"value\": \"1\"}], \"searches\": [\"svc.cluster.local\",\"ns.svc.cluster.local\"]}}, {\"op\": \"replace\", \"path\": \"/spec/dnsPolicy\", \"value\": \"None\"}]"
       return mutatation_response(True, uid, patch)
     else:
       logger.info("Namespace: " + namespace +  " | Owner Object is: " + pod_owner_object_name + " | DNS policy is " + spec["spec"]["dnsPolicy"] + " | NOT MUTATED AND DEPLOYED ")
-      logger.debug("Namespace " + namespace + " is retricted. | " + "Owner Object is: " + pod_owner_object_name + " | DNS policy is " + spec["spec"]["dnsPolicy"] +  " | Owner Object Kind: " + pod_owner_object_kind  + " | Pod Generate Name is: " + pod_generate_name + " | " + " Request UID is: " + uid + " | NOT MUTATED AND DEPLOYED " )
+      logger.debug("Namespace " + namespace + " is not restricted. | " + "Owner Object is: " + pod_owner_object_name + " | DNS policy is " + spec["spec"]["dnsPolicy"] +  " | Owner Object Kind: " + pod_owner_object_kind  + " | Pod Generate Name is: " + pod_generate_name + " | " + " Request UID is: " + uid + " | NOT MUTATED AND DEPLOYED " )
       return default_response(uid)
 
 
