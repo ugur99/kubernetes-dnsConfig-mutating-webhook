@@ -100,8 +100,17 @@ def mutatating_webhook():
   except KeyError:
     logger.info("Request UID: " + uid + " does not have pod generate name..")
     pod_generate_name = ""
-  pod_owner_object_name = spec["metadata"]["ownerReferences"][0]["name"]
-  pod_owner_object_kind = spec["metadata"]["ownerReferences"][0]["kind"]
+  try:
+    pod_owner_object_name = spec["metadata"]["ownerReferences"][0]["name"]
+  except KeyError:
+    logger.debug("Request UID: " + uid + " does not have pod_owner_object_name..")
+    pod_owner_object_name = ""
+  try:
+    pod_owner_object_kind = spec["metadata"]["ownerReferences"][0]["kind"]
+  except KeyError:
+    logger.debug("Request UID: " + uid + " does not have pod_owner_object_kind..")
+    pod_owner_object_kind = ""
+
 
   if namespace in list:
     logger.debug("Namespace " + namespace + " is not restricted. | " + " Owner Object: " + pod_owner_object_name + " | Owner Object Kind: " + pod_owner_object_kind  + " | Pod Generate Name: " + pod_generate_name + " | " + " Request UID: " + uid + " | NOT MUTATED AND DEPLOYED " )
