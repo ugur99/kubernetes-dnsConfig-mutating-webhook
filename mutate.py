@@ -1,7 +1,7 @@
 from unittest.mock import patch
 from flask import Flask, request
 from logger import get_logger
-import incluster_config, base64, json, os
+import incluster_config, base64, json, os, sys
 
 
 webhook = Flask(__name__)
@@ -39,10 +39,11 @@ else:
   logger.info("ATTEMTPS was set to: " + attempts)
 try:
   os.environ["NODELOCALDNS_IP"]
-  nodelocaldns_ip = os.environ["NODELCALDNS_IP"]
+  nodelocaldns_ip = os.environ["NODELOCALDNS_IP"]
   logger.info("NODELOCALDNS_IP was set to: " + nodelocaldns_ip)
 except KeyError:
   logger.error("Please set NODELOCALDNS_IP...")
+  sys.exit(1)
 
 
 patch = "[{\"op\": \"add\", \"path\": \"/spec/dnsConfig\", \"value\": {\"nameservers\": [\"NODELOCALDNS_IP_VALUE\"], \"options\": [{\"name\": \"timeout\", \"value\":  \"TIMEOUT_VALUE\"}, {\"name\": \"ndots\", \"value\": \"NDOTS_VALUE\"}, {\"name\": \"attempts\", \"value\": \"ATTEMPTS_VALUE\"}], \"searches\": [\"svc.cluster.local\",\"ns.svc.cluster.local\"]}}, {\"op\": \"replace\", \"path\": \"/spec/dnsPolicy\", \"value\": \"None\"}]"
