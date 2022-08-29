@@ -43,7 +43,6 @@ try:
   logger.info("NODELOCALDNS_IP was set to: " + nodelocaldns_ip)
 except KeyError:
   logger.error("Please set NODELOCALDNS_IP...")
-  exit(1)
 
 
 patch = "[{\"op\": \"add\", \"path\": \"/spec/dnsConfig\", \"value\": {\"nameservers\": [\"NODELOCALDNS_IP_VALUE\"], \"options\": [{\"name\": \"timeout\", \"value\":  \"TIMEOUT_VALUE\"}, {\"name\": \"ndots\", \"value\": \"NDOTS_VALUE\"}, {\"name\": \"attempts\", \"value\": \"ATTEMPTS_VALUE\"}], \"searches\": [\"svc.cluster.local\",\"ns.svc.cluster.local\"]}}, {\"op\": \"replace\", \"path\": \"/spec/dnsPolicy\", \"value\": \"None\"}]"
