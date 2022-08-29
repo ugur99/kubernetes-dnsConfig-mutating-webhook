@@ -95,22 +95,40 @@ def mutatating_webhook():
   uid = request_json['request']['uid']
   namespace = request_json["request"]["namespace"]
   spec = request_json["request"].get("object")
+  
   try:
     pod_generate_name = spec["metadata"]["generateName"]
   except KeyError:
-    logger.debug("Request is: " + req )
-    logger.info("Request UID: " + uid + " does not have pod generate name..")
-    pod_generate_name = ""
+    try:
+      pod_generate_name = spec["metadata"]["name"]
+      logger.info("Request UID: " + uid + " does not have pod generate name; setting metadata.name as a pod_generate_name")
+      logger.debug("Request: " + request)
+    except:
+      logger.info("Request UID: " + uid + "  does not have pod_generate_name..")
+      logger.debug("Request: " + request)
+      pod_generate_name = ""
   try:
     pod_owner_object_name = spec["metadata"]["ownerReferences"][0]["name"]
   except KeyError:
-    logger.debug("Request UID: " + uid + " does not have pod_owner_object_name..")
-    pod_owner_object_name = ""
+    try:
+      pod_owner_object_name = spec["metadata"]["name"]
+      logger.info("Request UID: " + uid + " does not have pod generate name; setting metadata.name as a pod_owner_object_name")
+      logger.debug("Request: " + request)
+    except:
+      logger.info("Request UID: " + uid + "  does not have pod_owner_object_name..")
+      logger.debug("Request: " + request)
+      pod_owner_object_name = ""
   try:
     pod_owner_object_kind = spec["metadata"]["ownerReferences"][0]["kind"]
   except KeyError:
-    logger.debug("Request UID: " + uid + " does not have pod_owner_object_kind..")
-    pod_owner_object_kind = ""
+    try:
+      pod_owner_object_kind = spec["metadata"]["name"]
+      logger.info("Request UID: " + uid + " does not have pod generate name; setting metadata.name as a pod_owner_object_name")
+      logger.debug("Request: " + request)
+    except:
+      logger.info("Request UID: " + uid + "  does not have pod_owner_object_kind..")
+      logger.debug("Request: " + request)  
+      pod_owner_object_kind = ""
 
 
   if namespace in list:
