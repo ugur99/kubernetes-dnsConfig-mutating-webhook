@@ -2,7 +2,7 @@ from unittest.mock import patch
 from flask import Flask, request, jsonify
 from os import environ
 from logger import get_logger
-import incluster_config, base64, jsonpatch, copy, json
+import incluster_config, base64, jsonpatch, copy, json, os
 
 
 webhook = Flask(__name__)
@@ -13,6 +13,35 @@ properties = open("properties.yaml", "r")
 data = properties.read()
 list = data.split("\n")
 properties.close()
+
+try:
+  os.environ["NDOTS"]
+except KeyError:
+  logger.warning("NDOTS was not set, default value is '2'")
+  ndots = "2"
+else:
+  ndots = os.environ["NDOTS"]
+try:
+  os.environ["TIMEOUT"]
+except KeyError:
+  logger.warning("TIMEOUT was not set, default value is '1'")
+  timeout = "1"
+else:
+  timeout = os.environ["TIMEOUT"]
+try:
+  os.environ["ATTEMTPS"]
+except KeyError:
+  logger.warning("ATTEMTPS was not set, default value is '1'")
+  attempts = "1"
+else:
+  attempts = os.environ["ATTEMTPS"]
+
+patch = "[{\"op\": \"add\", \"path\": \"/spec/dnsConfig\", \"value\": {\"nameservers\": [\"169.254.25.10\"], \"options\": [{\"name\": \"timeout\", \"value\":  \"TIMEOUT_VALUE\"}, {\"name\": \"ndots\", \"value\": \"NDOTS_VALUE\"}, {\"name\": \"attempts\", \"value\": \"ATTEMPTS_VALUE\"}], \"searches\": [\"svc.cluster.local\",\"ns.svc.cluster.local\"]}}, {\"op\": \"replace\", \"path\": \"/spec/dnsPolicy\", \"value\": \"None\"}]"
+
+char_to_replace = {'TIMEOUT_VALUE': timeout, 'NDOTS_VALUE': ndots, 'ATTEMPTS_VALUE': attempts}
+for key, value in char_to_replace.items():
+    patch = patch.replace(key,value)
+    #logger.debug("Patch is: " + patch)
 
 
 @webhook.route('/mutate', methods=['POST'])
@@ -33,20 +62,19 @@ def mutatating_webhook():
   pod_owner_object_kind = spec["metadata"]["ownerReferences"][0]["kind"]
 
   if namespace in list:
-    logger.debug("Namespace " + namespace + " is not restricted. | " + " Owner Object is: " + pod_owner_object_name + " | Owner Object Kind: " + pod_owner_object_kind  + " | Pod Generate Name is: " + pod_generate_name + " | " + " Request UID is: " + uid + " | NOT MUTATED AND DEPLOYED " )
-    logger.info("Namespace: " + namespace +  "Owner Object is: " + pod_owner_object_name + " | NOT MUTATED AND DEPLOYED ")
+    logger.debug("Namespace " + namespace + " is not restricted. | " + " Owner Object: " + pod_owner_object_name + " | Owner Object Kind: " + pod_owner_object_kind  + " | Pod Generate Name: " + pod_generate_name + " | " + " Request UID: " + uid + " | NOT MUTATED AND DEPLOYED " )
+    logger.info("Namespace: " + namespace +  "Owner Object: " + pod_owner_object_name + " | NOT MUTATED AND DEPLOYED ")
     return default_response(uid)
   else:
     if (spec["spec"]["dnsPolicy"] is None) or (spec["spec"]["dnsPolicy"] == "ClusterFirst"):
-      logger.debug("Namespace " + namespace + " is restricted. | " + " Owner Object is: " + pod_owner_object_name + " | Owner Object Kind: " + pod_owner_object_kind  + " | Pod Generate Name is: " + pod_generate_name + " | " + " Request UID is: " + uid + " | MUTATED AND DEPLOYED " )
-      logger.info("Namespace: " + namespace +  " | Owner Object is: " + pod_owner_object_name + " | MUTATED AND DEPLOYED ")
-      patch = "[{\"op\": \"add\", \"path\": \"/spec/dnsConfig\", \"value\": {\"nameservers\": [\"169.254.25.10\"], \"options\": [{\"name\": \"timeout\", \"value\": \"1\"}, {\"name\": \"ndots\", \"value\": \"2\"}, {\"name\": \"attempts\", \"value\": \"1\"}], \"searches\": [\"svc.cluster.local\",\"ns.svc.cluster.local\"]}}, {\"op\": \"replace\", \"path\": \"/spec/dnsPolicy\", \"value\": \"None\"}]"
+      logger.debug("Namespace " + namespace + " is restricted. | " + " Owner Object: " + pod_owner_object_name + " | Owner Object Kind: " + pod_owner_object_kind  + " | Pod Generate Name: " + pod_generate_name + " | " + " Request UID: " + uid + " | MUTATED AND DEPLOYED " )
+      logger.info("Namespace: " + namespace +  " | Owner Object: " + pod_owner_object_name + " | MUTATED AND DEPLOYED ")
+      #patch = "[{\"op\": \"add\", \"path\": \"/spec/dnsConfig\", \"value\": {\"nameservers\": [\"169.254.25.10\"], \"options\": [{\"name\": \"timeout\", \"value\": \"1\"}, {\"name\": \"ndots\", \"value\": \"2\"}, {\"name\": \"attempts\", \"value\": \"1\"}], \"searches\": [\"svc.cluster.local\",\"ns.svc.cluster.local\"]}}, {\"op\": \"replace\", \"path\": \"/spec/dnsPolicy\", \"value\": \"None\"}]"
       return mutatation_response(True, uid, patch)
     else:
-      logger.info("Namespace: " + namespace +  " | Owner Object is: " + pod_owner_object_name + " | DNS policy is " + spec["spec"]["dnsPolicy"] + " | NOT MUTATED AND DEPLOYED ")
-      logger.debug("Namespace " + namespace + " is not restricted. | " + "Owner Object is: " + pod_owner_object_name + " | DNS policy is " + spec["spec"]["dnsPolicy"] +  " | Owner Object Kind: " + pod_owner_object_kind  + " | Pod Generate Name is: " + pod_generate_name + " | " + " Request UID is: " + uid + " | NOT MUTATED AND DEPLOYED " )
+      logger.info("Namespace: " + namespace +  " | Owner Object: " + pod_owner_object_name + " | DNS Policy: " + spec["spec"]["dnsPolicy"] + " | NOT MUTATED AND DEPLOYED ")
+      logger.debug("Namespace " + namespace + " is not restricted. | " + "Owner Object: " + pod_owner_object_name + " | DNS Policy " + spec["spec"]["dnsPolicy"] +  " | Owner Object Kind: " + pod_owner_object_kind  + " | Pod Generate Name: " + pod_generate_name + " | " + " Request UID: " + uid + " | NOT MUTATED AND DEPLOYED " )
       return default_response(uid)
-
 
 
 def mutatation_response(allowed, uid, patch):
