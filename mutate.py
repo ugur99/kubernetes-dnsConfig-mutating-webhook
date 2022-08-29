@@ -102,10 +102,10 @@ def mutatating_webhook():
     try:
       pod_generate_name = spec["metadata"]["name"]
       logger.info("Request UID: " + uid + " does not have pod generate name; setting metadata.name as a pod_generate_name")
-      logger.debug("Request: " + request)
+      logger.debug("Request: " + req)
     except:
       logger.info("Request UID: " + uid + "  does not have pod_generate_name..")
-      logger.debug("Request: " + request)
+      logger.debug("Request: " + req)
       pod_generate_name = ""
   try:
     pod_owner_object_name = spec["metadata"]["ownerReferences"][0]["name"]
@@ -113,10 +113,10 @@ def mutatating_webhook():
     try:
       pod_owner_object_name = spec["metadata"]["name"]
       logger.info("Request UID: " + uid + " does not have pod generate name; setting metadata.name as a pod_owner_object_name")
-      logger.debug("Request: " + request)
+      logger.debug("Request: " + req)
     except:
       logger.info("Request UID: " + uid + "  does not have pod_owner_object_name..")
-      logger.debug("Request: " + request)
+      logger.debug("Request: " + req)
       pod_owner_object_name = ""
   try:
     pod_owner_object_kind = spec["metadata"]["ownerReferences"][0]["kind"]
@@ -124,10 +124,10 @@ def mutatating_webhook():
     try:
       pod_owner_object_kind = spec["metadata"]["name"]
       logger.info("Request UID: " + uid + " does not have pod generate name; setting metadata.name as a pod_owner_object_name")
-      logger.debug("Request: " + request)
+      logger.debug("Request: " + req)
     except:
       logger.info("Request UID: " + uid + "  does not have pod_owner_object_kind..")
-      logger.debug("Request: " + request)  
+      logger.debug("Request: " + req)  
       pod_owner_object_kind = ""
 
 
