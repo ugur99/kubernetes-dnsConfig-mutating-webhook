@@ -15,11 +15,7 @@ data = properties.read()
 list = data.split("\n")
 properties.close()
 
-#config.load_kube_config()
-#api_instance = client.CoreV1Api()
 api_instance = client.CoreV1Api(client.ApiClient(incluster_config.load_incluster_config()))
-#pretty="true"
-#namespace="kube-system"
 
 try: 
     api_response = api_instance.list_namespaced_config_map(namespace="kube-system",pretty="true")
@@ -74,7 +70,7 @@ except KeyError:
   exit(1)
 
 
-patch = "[{\"op\": \"add\", \"path\": \"/spec/dnsConfig\", \"value\": {\"nameservers\": [\"NODELOCALDNS_IP_VALUE\"], \"options\": [{\"name\": \"timeout\", \"value\":  \"TIMEOUT_VALUE\"}, {\"name\": \"ndots\", \"value\": \"NDOTS_VALUE\"}, {\"name\": \"attempts\", \"value\": \"ATTEMPTS_VALUE\"}], \"searches\": [\"svc.CLUSTERDOMAIN_VALUE\",\"ns.svc.CLUSTERDOMAIN_VALUE\"]}}, {\"op\": \"replace\", \"path\": \"/spec/dnsPolicy\", \"value\": \"None\"}]"
+patch = "[{\"op\": \"add\", \"path\": \"/spec/dnsConfig\", \"value\": {\"nameservers\": [\"NODELOCALDNS_IP_VALUE\"], \"options\": [{\"name\": \"timeout\", \"value\":  \"TIMEOUT_VALUE\"}, {\"name\": \"ndots\", \"value\": \"NDOTS_VALUE\"}, {\"name\": \"attempts\", \"value\": \"ATTEMPTS_VALUE\"}], \"searches\": [\"svc.CLUSTERDOMAIN_VALUE\"]}}, {\"op\": \"replace\", \"path\": \"/spec/dnsPolicy\", \"value\": \"None\"}]"
 
 char_to_replace = {'TIMEOUT_VALUE': timeout, 'NDOTS_VALUE': ndots, 'ATTEMPTS_VALUE': attempts, 'NODELOCALDNS_IP_VALUE': nodelocaldns_ip, 'CLUSTERDOMAIN_VALUE': cluster_name}
 for key, value in char_to_replace.items():
