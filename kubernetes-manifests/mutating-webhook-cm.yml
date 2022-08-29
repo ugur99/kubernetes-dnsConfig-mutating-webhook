@@ -1,7 +1,7 @@
 apiVersion: v1
 data:
   properties.yaml: |
-    sisyphus
+    kube-system
 kind: ConfigMap
 metadata:
   name: dns-mutation-cm

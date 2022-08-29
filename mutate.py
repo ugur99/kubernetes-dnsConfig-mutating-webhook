@@ -1,8 +1,7 @@
 from unittest.mock import patch
-from flask import Flask, request, jsonify
-from os import environ
+from flask import Flask, request
 from logger import get_logger
-import incluster_config, base64, jsonpatch, copy, json, os
+import incluster_config, base64, json, os
 
 
 webhook = Flask(__name__)
@@ -21,6 +20,7 @@ except KeyError:
   ndots = "2"
 else:
   ndots = os.environ["NDOTS"]
+  logger.info("NDOTS was set to: " + ndots)
 try:
   os.environ["TIMEOUT"]
 except KeyError:
@@ -28,6 +28,7 @@ except KeyError:
   timeout = "1"
 else:
   timeout = os.environ["TIMEOUT"]
+  logger.info("TIMEOUT was set to: " + timeout)
 try:
   os.environ["ATTEMTPS"]
 except KeyError:
@@ -35,10 +36,19 @@ except KeyError:
   attempts = "1"
 else:
   attempts = os.environ["ATTEMTPS"]
+  logger.info("ATTEMTPS was set to: " + attempts)
+try:
+  os.environ["NODELOCALDNS_IP"]
+  nodelocaldns_ip = os.environ["NODELCALDNS_IP"]
+  logger.info("NODELOCALDNS_IP was set to: " + nodelocaldns_ip)
+except KeyError:
+  logger.error("Please set NODELOCALDNS_IP...")
+  exit(1)
 
-patch = "[{\"op\": \"add\", \"path\": \"/spec/dnsConfig\", \"value\": {\"nameservers\": [\"169.254.25.10\"], \"options\": [{\"name\": \"timeout\", \"value\":  \"TIMEOUT_VALUE\"}, {\"name\": \"ndots\", \"value\": \"NDOTS_VALUE\"}, {\"name\": \"attempts\", \"value\": \"ATTEMPTS_VALUE\"}], \"searches\": [\"svc.cluster.local\",\"ns.svc.cluster.local\"]}}, {\"op\": \"replace\", \"path\": \"/spec/dnsPolicy\", \"value\": \"None\"}]"
 
-char_to_replace = {'TIMEOUT_VALUE': timeout, 'NDOTS_VALUE': ndots, 'ATTEMPTS_VALUE': attempts}
+patch = "[{\"op\": \"add\", \"path\": \"/spec/dnsConfig\", \"value\": {\"nameservers\": [\"NODELOCALDNS_IP_VALUE\"], \"options\": [{\"name\": \"timeout\", \"value\":  \"TIMEOUT_VALUE\"}, {\"name\": \"ndots\", \"value\": \"NDOTS_VALUE\"}, {\"name\": \"attempts\", \"value\": \"ATTEMPTS_VALUE\"}], \"searches\": [\"svc.cluster.local\",\"ns.svc.cluster.local\"]}}, {\"op\": \"replace\", \"path\": \"/spec/dnsPolicy\", \"value\": \"None\"}]"
+
+char_to_replace = {'TIMEOUT_VALUE': timeout, 'NDOTS_VALUE': ndots, 'ATTEMPTS_VALUE': attempts, 'NODELOCALDNS_IP_VALUE': nodelocaldns_ip}
 for key, value in char_to_replace.items():
     patch = patch.replace(key,value)
     #logger.debug("Patch is: " + patch)
@@ -69,7 +79,6 @@ def mutatating_webhook():
     if (spec["spec"]["dnsPolicy"] is None) or (spec["spec"]["dnsPolicy"] == "ClusterFirst"):
       logger.debug("Namespace " + namespace + " is restricted. | " + " Owner Object: " + pod_owner_object_name + " | Owner Object Kind: " + pod_owner_object_kind  + " | Pod Generate Name: " + pod_generate_name + " | " + " Request UID: " + uid + " | MUTATED AND DEPLOYED " )
       logger.info("Namespace: " + namespace +  " | Owner Object: " + pod_owner_object_name + " | MUTATED AND DEPLOYED ")
-      #patch = "[{\"op\": \"add\", \"path\": \"/spec/dnsConfig\", \"value\": {\"nameservers\": [\"169.254.25.10\"], \"options\": [{\"name\": \"timeout\", \"value\": \"1\"}, {\"name\": \"ndots\", \"value\": \"2\"}, {\"name\": \"attempts\", \"value\": \"1\"}], \"searches\": [\"svc.cluster.local\",\"ns.svc.cluster.local\"]}}, {\"op\": \"replace\", \"path\": \"/spec/dnsPolicy\", \"value\": \"None\"}]"
       return mutatation_response(True, uid, patch)
     else:
       logger.info("Namespace: " + namespace +  " | Owner Object: " + pod_owner_object_name + " | DNS Policy: " + spec["spec"]["dnsPolicy"] + " | NOT MUTATED AND DEPLOYED ")

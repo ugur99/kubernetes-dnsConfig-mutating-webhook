@@ -24,13 +24,15 @@ spec:
             cpu: "1m"
         env:
         - name: LOG_LEVEL
-          value: "DEBUG"
+          value: "info"
         - name: NDOTS
           value: "2"
         - name: TIMEOUT
           value: "2"
         - name: ATTEMTPS
           value: "1"
+        - name: NODELOCALDNS_IP
+          values: "169.254.25.10"
         volumeMounts:
         - mountPath: "/app/properties.yaml"
           name: config
