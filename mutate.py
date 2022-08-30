@@ -1,7 +1,7 @@
 from unittest.mock import patch
 from flask import Flask, request
 from logger import get_logger
-import incluster_config, base64, json, os
+import incluster_config, base64, json, os, re
 from kubernetes import client, config, utils
 from kubernetes.client.rest import ApiException
 
@@ -17,20 +17,29 @@ properties.close()
 
 api_instance = client.CoreV1Api(client.ApiClient(incluster_config.load_incluster_config()))
 
+# Instead of using customized cluster-info configmap we can get clusterDomain name from kubelet-config configmap.
+#try:
+#    api_response = api_instance.read_namespaced_config_map("kubelet-config","kube-system")
+#    for key,value in api_response.data.items():
+#        if key == "kubelet":
+#            data = value
+#            cluster_domain = re.search(r"^((.|\n)*)clusterDomain:\s*([^\n\r]*)",data).group(3)
+#        else:
+#            pass
 try: 
     api_response = api_instance.read_namespaced_config_map("cluster-info","kube-system")
     for key,value in api_response.data.items():
         if key == "cluster":
-            cluster_name = value
+            cluster_domain = value
         else:
             pass
 except ApiException as e:
     print("Exception when calling CoreV1Api->list_namespaced_config_map: %s\n" % e)
 
-if cluster_name is None:
+if cluster_domain is None:
   exit(1)
 else:
-  logger.info("clusterDomain was set to: " + cluster_name)
+  logger.info("clusterDomain was set to: " + cluster_domain)
 try:
   os.environ["NDOTS"]
 except KeyError:
@@ -66,7 +75,7 @@ except KeyError:
 
 patch = "[{\"op\": \"add\", \"path\": \"/spec/dnsConfig\", \"value\": {\"nameservers\": [\"NODELOCALDNS_IP_VALUE\"], \"options\": [{\"name\": \"timeout\", \"value\":  \"TIMEOUT_VALUE\"}, {\"name\": \"ndots\", \"value\": \"NDOTS_VALUE\"}, {\"name\": \"attempts\", \"value\": \"ATTEMPTS_VALUE\"}], \"searches\": [\"svc.CLUSTERDOMAIN_VALUE\"]}}, {\"op\": \"replace\", \"path\": \"/spec/dnsPolicy\", \"value\": \"None\"}]"
 
-char_to_replace = {'TIMEOUT_VALUE': timeout, 'NDOTS_VALUE': ndots, 'ATTEMPTS_VALUE': attempts, 'NODELOCALDNS_IP_VALUE': nodelocaldns_ip, 'CLUSTERDOMAIN_VALUE': cluster_name}
+char_to_replace = {'TIMEOUT_VALUE': timeout, 'NDOTS_VALUE': ndots, 'ATTEMPTS_VALUE': attempts, 'NODELOCALDNS_IP_VALUE': nodelocaldns_ip, 'CLUSTERDOMAIN_VALUE': cluster_domain}
 for key, value in char_to_replace.items():
     patch = patch.replace(key,value)
     #logger.debug("Patch is: " + patch)
