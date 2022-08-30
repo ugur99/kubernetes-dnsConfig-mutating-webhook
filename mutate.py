@@ -18,20 +18,14 @@ properties.close()
 api_instance = client.CoreV1Api(client.ApiClient(incluster_config.load_incluster_config()))
 
 try: 
-    api_response = api_instance.list_namespaced_config_map(namespace="kube-system",pretty="true")
-    #print(api_response)
+    api_response = api_instance.read_namespaced_config_map("cluster-info","kube-system")
+    for key,value in api_response.data.items():
+        if key == "cluster":
+            cluster_name = value
+        else:
+            pass
 except ApiException as e:
     print("Exception when calling CoreV1Api->list_namespaced_config_map: %s\n" % e)
-
-for configmap in api_response.items:
-    if configmap.metadata.name == "cluster-info":
-        for key,value in configmap.data.items():
-            if key == "cluster":
-                cluster_name = value
-            else:
-                pass
-    else:
-        pass
 
 if cluster_name is None:
   exit(1)
